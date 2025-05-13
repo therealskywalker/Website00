@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SKY — Personal Universe</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- GSAP and ScrollTrigger -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+
+  <style>
+    body {
+      background-color: black;
+      overflow-x: hidden;
+    }
+
+    .glow {
+      text-shadow: 0 0 10px #00eaff, 0 0 20px #00eaff, 0 0 40px #00eaff;
+    }
+
+    .glow-tab {
+      text-shadow: 0 0 4px #00eaff;
+      transition: color 0.3s ease;
+    }
+
+    .glow-tab:hover {
+      color: #00eaff;
+    }
+
+    .zoom-section {
+      transform: scale(0.85);
+      opacity: 0;
+    }
+
+    .header {
+      transition: all 0.3s ease-in-out;
+    }
+
+    .header.scrolled {
+      padding-top: 0.5rem;
+      padding-bottom: 0.5rem;
+      background-color: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(10px);
+    }
+
+    #stars-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+    }
+
+    section {
+      position: relative;
+      z-index: 1;
+    }
+  </style>
+</head>
+<body class="text-white scroll-smooth">
+
+  <!-- 🌌 Star Canvas -->
+  <canvas id="stars-canvas"></canvas>
+
+  <!-- 🔝 Header -->
+  <header id="site-header" class="fixed w-full z-50 flex items-center justify-between px-6 py-4 header">
+    <div class="text-2xl font-bold glow">SKY</div>
+    <nav class="space-x-4 text-sm md:text-lg font-medium">
+      <a href="#travel" class="glow-tab">Travel</a>
+      <a href="#wedding" class="glow-tab">Wedding</a>
+      <a href="#projects" class="glow-tab">Projects</a>
+    </nav>
+  </header>
+
+  <!-- 🚀 Hero -->
+  <section class="h-screen flex items-center justify-center bg-cover bg-center bg-fixed" style="background-image: url('assets/IMG_7114.jpg');">
+    <h1 class="text-4xl sm:text-5xl md:text-6xl font-bold text-center tracking-wide glow px-4">Skyler Walker</h1>
+  </section>
+
+  <!-- 🪐 Travel -->
+  <section id="travel" class="h-screen flex items-center justify-center bg-cover bg-center bg-fixed zoom-section" style="background-image: url('assets/IMG_0702.jpg');">
+    <div class="bg-black/60 p-6 md:p-8 rounded-lg text-center max-w-xl mx-4">
+      <h2 class="text-3xl sm:text-4xl font-semibold mb-4 glow">Discover</h2>
+      <p class="text-base sm:text-lg">Explore oceans, mountains, and the unknown.</p>
+    </div>
+  </section>
+
+  <!-- 💍 Wedding -->
+  <section id="wedding" class="h-screen flex items-center justify-center bg-cover bg-center bg-fixed zoom-section" style="background-image: url('assets/IMG_9032.jpg');">
+    <div class="bg-black/60 p-6 md:p-8 rounded-lg text-center max-w-xl mx-4">
+      <h2 class="text-3xl sm:text-4xl font-semibold mb-4 glow">Engage</h2>
+      <p class="text-base sm:text-lg">Our love story told through stars and celebrations.</p>
+    </div>
+  </section>
+
+  <!-- 🛰 Projects -->
+  <section id="projects" class="h-screen flex items-center justify-center bg-cover bg-center bg-fixed zoom-section" style="background-image: url('assets/IMG_4716.jpg');">
+    <div class="bg-black/60 p-6 md:p-8 rounded-lg text-center max-w-xl mx-4">
+      <h2 class="text-3xl sm:text-4xl font-semibold mb-4 glow">Expand</h2>
+      <p class="text-base sm:text-lg">Ongoing missions, ventures, and digital experiments.</p>
+    </div>
+  </section>
+
+  <!-- 🔧 Scroll + Animation Scripts -->
+  <script>
+    // Zoom sections on scroll
+    gsap.utils.toArray('.zoom-section').forEach((section) => {
+      gsap.fromTo(section,
+        { scale: 0.85, opacity: 0 },
+        {
+          scrollTrigger: {
+            trigger: section,
+            start: 'top 80%',
+            end: 'bottom 60%',
+            toggleActions: 'play none none reverse',
+          },
+          scale: 1,
+          opacity: 1,
+          duration: 1.2,
+          ease: 'power2.out'
+        });
+    });
+
+    // Header shrink on scroll
+    const header = document.getElementById("site-header");
+    window.addEventListener("scroll", () => {
+      header.classList.toggle("scrolled", window.scrollY > 30);
+    });
+
+    // Parallax effect
+    gsap.utils.toArray("section").forEach((section) => {
+      gsap.to(section, {
+        backgroundPositionY: "50%",
+        ease: "none",
+        scrollTrigger: {
+          trigger: section,
+          start: "top bottom",
+          end: "bottom top",
+          scrub: true,
+        },
+      });
+    });
+
+    // Stars canvas animation
+    const canvas = document.getElementById("stars-canvas");
+    const ctx = canvas.getContext("2d");
+    let stars = [];
+    const numStars = 120;
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener("resize", resizeCanvas);
+    resizeCanvas();
+
+    function initStars() {
+      stars = [];
+      for (let i = 0; i < numStars; i++) {
+        stars.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          radius: Math.random() * 1.5,
+          velocity: Math.random() * 0.3 + 0.05
+        });
+      }
+    }
+
+    function drawStars() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = "white";
+      stars.forEach(star => {
+        ctx.beginPath();
+        ctx.arc(star.x, star.y, star.radius, 0, 2 * Math.PI);
+        ctx.fill();
+      });
+    }
+
+    function updateStars() {
+      stars.forEach(star => {
+        star.y += star.velocity;
+        if (star.y > canvas.height) {
+          star.y = 0;
+          star.x = Math.random() * canvas.width;
+        }
+      });
+    }
+
+    function animate() {
+      updateStars();
+      drawStars();
+      requestAnimationFrame(animate);
+    }
+
+    initStars();
+    animate();
+  </script>
+</body>
+</html>
